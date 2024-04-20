@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "esbenp.prettier-vscode",
+        "usernamehw.errorlens",
+        "yoavbls.pretty-ts-errors"
+    ]
+}

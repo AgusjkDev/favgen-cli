@@ -1,0 +1,33 @@
+{
+    "name": "favgen-cli",
+    "version": "0.0.0",
+    "description": "CLI for generating favicon images and configs.",
+    "keywords": [
+        "favicon",
+        "cli",
+        "seo",
+        "browserconfig",
+        "manifest",
+        "webmanifest"
+    ],
+    "author": {
+        "name": "Agustín Arnoldi",
+        "email": "agusjkdev7@gmail.com",
+        "url": "https://github.com/agusjkdev"
+    },
+    "repository": {
+        "url": "https://github.com/agusjkdev/favgen-cli"
+    },
+    "type": "module",
+    "scripts": {
+        "format": "prettier --write ."
+    },
+    "devDependencies": {
+        "@ianvs/prettier-plugin-sort-imports": "4.2.1",
+        "@types/bun": "latest",
+        "prettier": "3.2.5"
+    },
+    "peerDependencies": {
+        "typescript": "5.0.0"
+    }
+}
