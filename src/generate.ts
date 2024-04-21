@@ -2,6 +2,7 @@ import { createWriteStream } from "node:fs";
 import path from "node:path";
 import archiver, { type Archiver } from "archiver";
 import sharp from "sharp";
+import toIco from "to-ico";
 
 import { PNG_COMPRESSION_LEVEL, ZIP_COMPRESSION_LEVEL, ZIP_PACKAGE_FILENAME } from "@/constants";
 
@@ -107,12 +108,17 @@ export default async function generate(
         }),
     );
 
+    let icoBuffers: Buffer[] = [];
     for (const { buffer, size } of faviconsData) {
         const isArray = Array.isArray(size);
+        if (!Array.isArray(size) && DEFAULT_FAVICON_SIZES.includes(size)) icoBuffers.push(buffer);
+
         archive.append(buffer, {
             name: `favicon-${isArray ? size[0] : size}x${isArray ? size[1] : size}.png`,
         });
     }
+
+    archive.append(await toIco(icoBuffers), { name: "favicon.ico" });
 
     await archive.finalize();
 }
