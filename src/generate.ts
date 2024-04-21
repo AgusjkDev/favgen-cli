@@ -16,7 +16,14 @@ export type FaviconOption = {
     label: string;
     value: FaviconOptionValue;
 };
+type PwaConfig = {
+    name: string;
+    description: string;
+    display: string;
+    color: string;
+};
 const DEFAULT_FAVICON_SIZES: FaviconOptionValue["sizes"] = [16, 32, 64];
+const PWA_FAVICON_SIZES: FaviconOptionValue["sizes"] = [192, 512];
 export const FAVICON_OPTIONS: FaviconOption[] = [
     {
         label: "Apple related",
@@ -34,12 +41,6 @@ export const FAVICON_OPTIONS: FaviconOption[] = [
         label: "Internet Explorer",
         value: {
             sizes: [24, 144],
-        },
-    },
-    {
-        label: "Progressive Web Apps",
-        value: {
-            sizes: [192, 512],
         },
     },
     {
@@ -74,8 +75,10 @@ export default async function generate(
     favicons: FaviconOptionValue[],
     {
         optimizeSvg,
+        pwaConfig,
     }: {
         optimizeSvg: boolean;
+        pwaConfig: PwaConfig | null;
     },
 ) {
     const archive = archiver("zip", { zlib: { level: ZIP_COMPRESSION_LEVEL } });
@@ -95,6 +98,7 @@ export default async function generate(
     );
 
     sizes.push(...DEFAULT_FAVICON_SIZES);
+    if (pwaConfig) sizes.push(...PWA_FAVICON_SIZES);
 
     const rawBuffer = sharp(inputPath);
     const faviconsData = await Promise.all(
@@ -128,7 +132,8 @@ export default async function generate(
 
     archive.append(await toIco(icoBuffers), { name: "favicon.ico" });
 
-    if (path.extname(inputPath) === ".svg") {
+    const isSvg = path.extname(inputPath) === ".svg";
+    if (isSvg) {
         const svgBuffer = await fs.readFile(inputPath);
 
         let data: Buffer | string = svgBuffer;
@@ -138,6 +143,37 @@ export default async function generate(
             }).data;
         }
         archive.append(data, { name: "favicon.svg" });
+    }
+
+    if (pwaConfig) {
+        const { color, ...config } = pwaConfig;
+        const manifest = {
+            ...config,
+            background_color: color,
+            theme_color: color,
+            icons: [
+                ...(isSvg
+                    ? [
+                          {
+                              src: "favicon.svg",
+                              type: "image/svg+xml",
+                              sizes: "512x512",
+                          },
+                      ]
+                    : []),
+                ...(sizes.filter(size => !Array.isArray(size)) as number[]).map(size => {
+                    const proportions = `${size}x${size}`;
+
+                    return {
+                        src: `favicon-${proportions}.png`,
+                        type: "image/png",
+                        sizes: proportions,
+                    };
+                }),
+            ],
+        };
+
+        archive.append(JSON.stringify(manifest, null, 4), { name: "manifest.json" });
     }
 
     await archive.finalize();

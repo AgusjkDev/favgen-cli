@@ -1,10 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
-import { intro, isCancel, multiselect, outro, select, spinner, text } from "@clack/prompts";
+import { group, intro, isCancel, multiselect, outro, select, spinner, text } from "@clack/prompts";
 
-import { VALID_FILETYPES } from "@/constants";
+import {
+    PWA_DESCRIPTION_MAX_LENGTH,
+    PWA_DISPLAY_MODES,
+    PWA_NAME_MAX_LENGTH,
+    VALID_FILETYPES,
+} from "@/constants";
 import generate, { FAVICON_OPTIONS, type FaviconOption, type FaviconOptionValue } from "@/generate";
-import { toAbsPath } from "@/utils";
+import { isHexColor, toAbsPath } from "@/utils";
 
 import PKG from "../package.json";
 
@@ -101,6 +106,87 @@ async function main() {
         return exit();
     }
 
+    const isPwa = await select({
+        message: "Do you want to configure Progressive Web App?",
+        initialValue: false,
+        options: [
+            {
+                label: "Yes",
+                value: true,
+            },
+            {
+                label: "No",
+                value: false,
+            },
+        ],
+    });
+    if (isCancel(isPwa)) {
+        return exit();
+    }
+
+    const pwaConfig = !isPwa
+        ? null
+        : await group(
+              {
+                  name: () =>
+                      text({
+                          message: "How is the app called?",
+                          placeholder: "My App",
+                          validate: value => {
+                              if (!value) {
+                                  return "Please provide the app name.";
+                              }
+
+                              if (value.length > PWA_NAME_MAX_LENGTH) {
+                                  return `The app name must not have more than ${PWA_NAME_MAX_LENGTH} characters.`;
+                              }
+                          },
+                      }),
+                  description: () =>
+                      text({
+                          message: `Provide the app description`,
+                          placeholder: `Your app description.`,
+                          validate: value => {
+                              if (!value) {
+                                  return "Please provide the app description";
+                              }
+
+                              if (value.length > PWA_DESCRIPTION_MAX_LENGTH) {
+                                  return `The app description must not have more than ${PWA_NAME_MAX_LENGTH} characters.`;
+                              }
+                          },
+                      }),
+                  display: () =>
+                      select({
+                          message: `Select the app display mode`,
+                          initialValue: PWA_DISPLAY_MODES[0],
+                          options: PWA_DISPLAY_MODES.map(mode => ({
+                              label: mode,
+                              value: mode,
+                              hint: mode === PWA_DISPLAY_MODES[0] ? "most used" : undefined,
+                          })),
+                      }),
+                  color: () =>
+                      text({
+                          message: `Provide the app theme hex color for the tool bar and splash screen`,
+                          placeholder: "#ffffff",
+                          initialValue: "#ffffff",
+                          validate: value => {
+                              if (!value) {
+                                  return "Please provide the app theme hex color.";
+                              }
+
+                              if (!isHexColor(value)) {
+                                  return `"${value}" is not a valid color hex code.`;
+                              }
+                          },
+                      }),
+              },
+              {
+                  onCancel: () => exit(),
+              },
+          );
+
     const optimizeSvg =
         path.extname(inputPath) === ".svg" &&
         (await select({
@@ -127,6 +213,7 @@ async function main() {
 
     await generate(inputPath, outputPath, faviconOptions, {
         optimizeSvg,
+        pwaConfig,
     });
 
     s.stop("Successfully generated.");
