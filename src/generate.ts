@@ -96,12 +96,13 @@ export default async function generate(
 
     sizes.push(...DEFAULT_FAVICON_SIZES);
 
+    const rawBuffer = sharp(inputPath);
     const faviconsData = await Promise.all(
         sizes.map(async size => {
             const isArray = Array.isArray(size);
 
             return {
-                buffer: await sharp(inputPath)
+                buffer: await rawBuffer
                     .resize({
                         width: isArray ? size[0] : size,
                         height: isArray ? size[1] : size,
