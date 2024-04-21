@@ -1,7 +1,9 @@
 import { createWriteStream } from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import archiver, { type Archiver } from "archiver";
 import sharp from "sharp";
+import svgo from "svgo";
 import toIco from "to-ico";
 
 import { PNG_COMPRESSION_LEVEL, ZIP_COMPRESSION_LEVEL, ZIP_PACKAGE_FILENAME } from "@/constants";
@@ -70,6 +72,11 @@ export default async function generate(
     inputPath: string,
     outputPath: string,
     favicons: FaviconOptionValue[],
+    {
+        optimizeSvg,
+    }: {
+        optimizeSvg: boolean;
+    },
 ) {
     const archive = archiver("zip", { zlib: { level: ZIP_COMPRESSION_LEVEL } });
     archive.pipe(createWriteStream(path.join(outputPath, ZIP_PACKAGE_FILENAME)));
@@ -119,6 +126,18 @@ export default async function generate(
     }
 
     archive.append(await toIco(icoBuffers), { name: "favicon.ico" });
+
+    if (path.extname(inputPath) === ".svg") {
+        const svgBuffer = await fs.readFile(inputPath);
+
+        let data: Buffer | string = svgBuffer;
+        if (optimizeSvg) {
+            data = svgo.optimize(svgBuffer.toString("utf-8"), {
+                multipass: true,
+            }).data;
+        }
+        archive.append(data, { name: "favicon.svg" });
+    }
 
     await archive.finalize();
 }

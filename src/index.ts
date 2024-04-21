@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { intro, isCancel, multiselect, outro, spinner, text } from "@clack/prompts";
+import { intro, isCancel, multiselect, outro, select, spinner, text } from "@clack/prompts";
 
 import { VALID_FILETYPES } from "@/constants";
 import generate, { FAVICON_OPTIONS, type FaviconOption, type FaviconOptionValue } from "@/generate";
@@ -94,10 +94,33 @@ async function main() {
         return exit();
     }
 
+    const optimizeSvg =
+        path.extname(inputPath) === ".svg" &&
+        (await select({
+            message: "Do you want us to optimize your svg?",
+            initialValue: true,
+            options: [
+                {
+                    label: "Yes",
+                    value: true,
+                },
+                {
+                    label: "No",
+                    value: false,
+                },
+            ],
+        }));
+
+    if (isCancel(optimizeSvg)) {
+        return exit();
+    }
+
     const s = spinner();
     s.start("Generating");
 
-    await generate(inputPath, outputPath, faviconOptions);
+    await generate(inputPath, outputPath, faviconOptions, {
+        optimizeSvg,
+    });
 
     s.stop("Successfully generated.");
 
