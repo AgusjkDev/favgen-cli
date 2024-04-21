@@ -20,6 +20,7 @@
     },
     "type": "module",
     "scripts": {
+        "dev": "bun --watch src/index.ts",
         "format": "prettier --write ."
     },
     "devDependencies": {
@@ -29,5 +30,8 @@
     },
     "peerDependencies": {
         "typescript": "5.0.0"
+    },
+    "dependencies": {
+        "@clack/prompts": "0.7.0"
     }
 }
