@@ -43,7 +43,9 @@ async function main() {
             }
         },
     });
-    if (isCancel(input)) exit();
+    if (isCancel(input)) {
+        return exit();
+    }
 
     const inputPath = toAbsPath(input.toString());
     if (notEnoughPermissions) {
@@ -75,14 +77,19 @@ async function main() {
             }
         },
     });
-    if (isCancel(output)) exit();
+    if (isCancel(output)) {
+        return exit();
+    }
 
     const outputPath = toAbsPath(output.toString());
     if (notEnoughPermissions) {
-        exit(126, `Not enough permissions to access output path "${outputPath}".`);
+        return exit(126, `Not enough permissions to access output path "${outputPath}".`);
     }
     if (failedDirCreation) {
-        exit(1, `There was an unexpected error trying to create output path "${outputPath}".`);
+        return exit(
+            1,
+            `There was an unexpected error trying to create output path "${outputPath}".`,
+        );
     }
 
     const faviconOptions = await multiselect<FaviconOption[], FaviconOptionValue>({
