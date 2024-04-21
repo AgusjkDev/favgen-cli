@@ -67,3 +67,58 @@ export function getWebManifest({
 
     return JSON.stringify(manifest, null, 4);
 }
+
+export function getExampleHtml({
+    pwaConfig,
+    faviconsData,
+    withSvgIcon,
+}: {
+    pwaConfig: PwaConfig | null;
+    faviconsData: FaviconData[];
+    withSvgIcon: boolean;
+}) {
+    // Sort by rel and size descending
+    const sortedFaviconsData = faviconsData.toSorted((a, b) => {
+        if (a.rel === "apple-touch-icon" && b.rel === "icon") {
+            return -1;
+        }
+        if (a.rel === "icon" && b.rel === "apple-touch-icon") {
+            return 1;
+        }
+
+        return (
+            (Array.isArray(b.size) ? b.size[0] : b.size)! -
+            (Array.isArray(a.size) ? a.size[0] : a.size)!
+        );
+    });
+
+    const tags = [
+        `<title>${pwaConfig?.name ?? "Your app"}</title>`,
+        ...(pwaConfig
+            ? [
+                  `<meta name="description" content="${pwaConfig.description}" />`,
+                  `<meta name="theme-color" content="${pwaConfig.color}" />`,
+              ]
+            : []),
+        '<link rel="manifest" href="/manifest.json" />',
+        ...sortedFaviconsData.map(
+            ({ rel, src, proportions }) =>
+                `<link rel="${rel}" href="/${src}" sizes="${proportions}" type="image/png" />`,
+        ),
+        ...(withSvgIcon
+            ? [`<link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />`]
+            : []),
+        '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 64x64" type="image/x-icon" />',
+    ];
+
+    return `
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        ${tags.join("\n\t\t")}
+    </head>
+    <body></body>
+</html>`.trim();
+}

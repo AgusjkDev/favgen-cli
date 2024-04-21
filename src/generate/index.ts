@@ -7,7 +7,7 @@ import svgo from "svgo";
 import toIco from "to-ico";
 
 import { PNG_COMPRESSION_LEVEL, ZIP_COMPRESSION_LEVEL, ZIP_PACKAGE_FILENAME } from "@/constants";
-import { getBrowserConfig, getWebManifest } from "@/utils";
+import { getBrowserConfig, getExampleHtml, getWebManifest } from "@/utils";
 
 import type { FaviconOption, FaviconOptionValue, GenerateOptions } from "./types";
 
@@ -118,6 +118,17 @@ export default async function generate(
             name: "manifest.json",
         });
     }
+
+    archive.append(
+        getExampleHtml({
+            pwaConfig,
+            faviconsData: faviconsData.filter(data => data.rel != null),
+            withSvgIcon: isSvg,
+        }),
+        {
+            name: "index.html",
+        },
+    );
 
     await archive.finalize();
 }
