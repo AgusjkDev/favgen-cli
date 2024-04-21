@@ -99,6 +99,7 @@ export default async function generate(
 
     sizes.push(...DEFAULT_FAVICON_SIZES);
     if (pwaConfig) sizes.push(...PWA_FAVICON_SIZES);
+    sizes.sort((a, b) => (Array.isArray(a) ? a[0] : a)! - (Array.isArray(b) ? b[0] : b)!);
 
     const rawBuffer = sharp(inputPath);
     const faviconsData = await Promise.all(
