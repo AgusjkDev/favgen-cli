@@ -1,17 +1,9 @@
-import { accessSync, createWriteStream, existsSync, mkdirSync, statSync } from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import { intro, isCancel, multiselect, outro, spinner, text } from "@clack/prompts";
-import archiver from "archiver";
-import sharp from "sharp";
 
-import {
-    FAVICON_OPTIONS,
-    PNG_COMPRESSION_LEVEL,
-    VALID_FILETYPES,
-    ZIP_COMPRESSION_LEVEL,
-    ZIP_PACKAGE_FILENAME,
-    type FaviconOption,
-} from "@/constants";
+import { VALID_FILETYPES } from "@/constants";
+import generate, { FAVICON_OPTIONS, type FaviconOption, type FaviconOptionValue } from "@/generate";
 import { toAbsPath } from "@/utils";
 
 import PKG from "../package.json";
@@ -31,11 +23,11 @@ async function main() {
         placeholder: path.join(import.meta.dir, "/"),
         validate: value => {
             const absPath = toAbsPath(value);
-            if (!existsSync(absPath)) {
+            if (!fs.existsSync(absPath)) {
                 return `Input path "${absPath}" does not exist or is not a file.`;
             }
 
-            const stat = statSync(absPath);
+            const stat = fs.statSync(absPath);
             if (!stat.isFile()) {
                 return `Input path "${absPath}" is not a file.`;
             }
@@ -45,7 +37,7 @@ async function main() {
             }
 
             try {
-                accessSync(absPath);
+                fs.accessSync(absPath);
             } catch (_) {
                 notEnoughPermissions = true;
             }
@@ -68,15 +60,15 @@ async function main() {
         validate: value => {
             const absPath = toAbsPath(value);
 
-            if (existsSync(absPath)) {
+            if (fs.existsSync(absPath)) {
                 try {
-                    accessSync(absPath);
+                    fs.accessSync(absPath);
                 } catch (_) {
                     notEnoughPermissions = true;
                 }
             } else {
                 try {
-                    mkdirSync(absPath, { recursive: true });
+                    fs.mkdirSync(absPath, { recursive: true });
                 } catch (_) {
                     failedDirCreation = true;
                 }
@@ -93,7 +85,7 @@ async function main() {
         exit(1, `There was an unexpected error trying to create output path "${outputPath}".`);
     }
 
-    const faviconOptions = await multiselect<FaviconOption[], FaviconOption["value"]>({
+    const faviconOptions = await multiselect<FaviconOption[], FaviconOptionValue>({
         message: "Select your desired favicon categories:",
         initialValues: FAVICON_OPTIONS.filter(({ selected }) => selected).map(({ value }) => value),
         options: FAVICON_OPTIONS,
@@ -105,40 +97,7 @@ async function main() {
     const s = spinner();
     s.start("Generating");
 
-    const archive = archiver("zip", { zlib: { level: ZIP_COMPRESSION_LEVEL } });
-    archive.pipe(createWriteStream(path.join(outputPath, ZIP_PACKAGE_FILENAME)));
-
-    for (const { buffer, size } of await Promise.all(
-        Array.from(new Set(faviconOptions.map(({ sizes }) => sizes).flat(1))).map(async size => ({
-            buffer: await sharp(inputPath)
-                .resize(
-                    Array.isArray(size)
-                        ? {
-                              width: size[0],
-                              height: size[1],
-                              background: { r: 0, g: 0, b: 0, alpha: 0 },
-                              fit: sharp.fit.contain,
-                          }
-                        : size,
-                )
-                .png({ compressionLevel: PNG_COMPRESSION_LEVEL })
-                .toBuffer(),
-            size,
-        })),
-    )) {
-        const isArray = Array.isArray(size);
-        archive.append(buffer, {
-            name: `favicon-${isArray ? size[0] : size}x${isArray ? size[1] : size}.png`,
-        });
-    }
-
-    for (const { configFile } of faviconOptions) {
-        if (!configFile) continue;
-
-        configFile(archive);
-    }
-
-    await archive.finalize();
+    await generate(inputPath, outputPath, faviconOptions);
 
     s.stop("Successfully generated.");
 
