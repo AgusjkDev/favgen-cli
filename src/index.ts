@@ -86,8 +86,8 @@ async function main() {
     }
 
     const faviconOptions = await multiselect<FaviconOption[], FaviconOptionValue>({
-        message: "Select your desired favicon categories:",
-        initialValues: FAVICON_OPTIONS.filter(({ selected }) => selected).map(({ value }) => value),
+        message: "Select any extra favicon categories (optional)",
+        required: false,
         options: FAVICON_OPTIONS,
     });
     if (isCancel(faviconOptions) || faviconOptions instanceof Symbol) {

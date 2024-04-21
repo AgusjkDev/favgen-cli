@@ -12,29 +12,20 @@ export type FaviconOptionValue = {
 export type FaviconOption = {
     label: string;
     value: FaviconOptionValue;
-    selected?: true;
 };
+const DEFAULT_FAVICON_SIZES: FaviconOptionValue["sizes"] = [16, 32, 64];
 export const FAVICON_OPTIONS: FaviconOption[] = [
-    {
-        label: "Standard sizes",
-        value: {
-            sizes: [16, 32, 64],
-        },
-        selected: true,
-    },
     {
         label: "Apple related",
         value: {
             sizes: [57, 60, 72, 76, 114, 120, 144, 152, 167, 180],
         },
-        selected: true,
     },
     {
         label: "Google & Chrome related",
         value: {
             sizes: [96, 128, 196, 256, 384],
         },
-        selected: true,
     },
     {
         label: "Internet Explorer",
@@ -94,6 +85,9 @@ export default async function generate(
                 .flat(1),
         ),
     );
+
+    sizes.push(...DEFAULT_FAVICON_SIZES);
+
     const faviconsData = await Promise.all(
         sizes.map(async size => {
             const isArray = Array.isArray(size);
