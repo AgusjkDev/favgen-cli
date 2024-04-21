@@ -1,8 +1,17 @@
-import { accessSync, existsSync, mkdirSync, statSync } from "node:fs";
+import { accessSync, createWriteStream, existsSync, mkdirSync, statSync } from "node:fs";
 import path from "node:path";
-import { intro, isCancel, outro, text } from "@clack/prompts";
+import { intro, isCancel, multiselect, outro, spinner, text } from "@clack/prompts";
+import archiver from "archiver";
+import sharp from "sharp";
 
-import { VALID_FILETYPES } from "@/constants";
+import {
+    FAVICON_OPTIONS,
+    PNG_COMPRESSION_LEVEL,
+    VALID_FILETYPES,
+    ZIP_COMPRESSION_LEVEL,
+    ZIP_PACKAGE_FILENAME,
+    type FaviconOption,
+} from "@/constants";
 import { toAbsPath } from "@/utils";
 
 import PKG from "../package.json";
@@ -84,7 +93,48 @@ async function main() {
         exit(1, `There was an unexpected error trying to create output path "${outputPath}".`);
     }
 
-    // TODO: generate favicons
+    const faviconOptions = await multiselect<FaviconOption[], FaviconOption["value"]>({
+        message: "Select your desired favicon categories:",
+        initialValues: FAVICON_OPTIONS.filter(({ selected }) => selected).map(({ value }) => value),
+        options: FAVICON_OPTIONS,
+    });
+    if (isCancel(faviconOptions) || faviconOptions instanceof Symbol) {
+        return exit();
+    }
+
+    const s = spinner();
+    s.start("Generating");
+
+    const archive = archiver("zip", { zlib: { level: ZIP_COMPRESSION_LEVEL } });
+    archive.pipe(createWriteStream(path.join(outputPath, ZIP_PACKAGE_FILENAME)));
+
+    for (const { buffer, size } of await Promise.all(
+        Array.from(new Set(faviconOptions.map(({ sizes }) => sizes).flat(1))).map(async size => ({
+            buffer: await sharp(inputPath)
+                .resize(
+                    Array.isArray(size)
+                        ? {
+                              width: size[0],
+                              height: size[1],
+                              background: { r: 0, g: 0, b: 0, alpha: 0 },
+                              fit: sharp.fit.contain,
+                          }
+                        : size,
+                )
+                .png({ compressionLevel: PNG_COMPRESSION_LEVEL })
+                .toBuffer(),
+            size,
+        })),
+    )) {
+        const isArray = Array.isArray(size);
+        archive.append(buffer, {
+            name: `favicon-${isArray ? size[0] : size}x${isArray ? size[1] : size}.png`,
+        });
+    }
+
+    await archive.finalize();
+
+    s.stop("Successfully generated.");
 
     outro(`Done! Thank you for using ${PKG.name} :)`);
 }
