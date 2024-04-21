@@ -1,8 +1,11 @@
+import type { Archiver } from "archiver";
+
 export const VALID_FILETYPES = [".avif", ".jpeg", ".jpg", ".png", ".webp"];
 export type FaviconOption = {
     label: string;
     value: {
         sizes: (number | number[])[];
+        configFile?: (archive: Archiver) => void;
     };
     selected?: true;
 };
@@ -44,6 +47,24 @@ export const FAVICON_OPTIONS: FaviconOption[] = [
         label: "Windows 8.1",
         value: {
             sizes: [128, 270, 558, [558, 270]],
+            configFile: archive => {
+                const browserConfigXml = `
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square128x128logo src="favicon-128x128.png" />
+            <square270x270logo src="favicon-270x270.png" />
+            <square558x558logo src="favicon-558x558.png" />
+            <wide558x270logo src="favicon-558x270.png" />
+        </tile>
+    </msapplication>
+</browserconfig>`.trim();
+
+                archive.append(browserConfigXml, {
+                    name: "browserconfig.xml",
+                });
+            },
         },
     },
 ];

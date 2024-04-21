@@ -132,6 +132,12 @@ async function main() {
         });
     }
 
+    for (const { configFile } of faviconOptions) {
+        if (!configFile) continue;
+
+        configFile(archive);
+    }
+
     await archive.finalize();
 
     s.stop("Successfully generated.");
