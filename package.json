@@ -8,7 +8,8 @@
         "seo",
         "browserconfig",
         "manifest",
-        "webmanifest"
+        "webmanifest",
+        "pwa"
     ],
     "author": {
         "name": "Agustín Arnoldi",
@@ -19,6 +20,9 @@
         "url": "https://github.com/agusjkdev/favgen-cli"
     },
     "type": "module",
+    "bin": {
+        "favgen-cli": "dist/index.js"
+    },
     "scripts": {
         "dev": "bun --watch src/index.ts",
         "build": "bun build src/index.ts --minify --target=node --outfile=dist/index.js",
