@@ -3,9 +3,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { spinner } from "@clack/prompts";
 import archiver from "archiver";
+import pngToIco from "png-to-ico";
 import sharp from "sharp";
 import svgo from "svgo";
-import toIco from "to-ico";
 
 import { PNG_COMPRESSION_LEVEL, ZIP_COMPRESSION_LEVEL, ZIP_PACKAGE_FILENAME } from "@/constants";
 import { exit } from "@/prompts";
@@ -72,7 +72,7 @@ export default async function generate({
             archive.append(buffer, { name: src });
         }
 
-        archive.append(await toIco(toIcoBuffers), { name: "favicon.ico" });
+        archive.append(await pngToIco(toIcoBuffers), { name: "favicon.ico" });
 
         const withSvgIcon = isSvg(inputPath);
         if (withSvgIcon) {
