@@ -189,7 +189,7 @@ export async function getPwaConfig() {
     );
 }
 
-export async function getSvgOptimize() {
+export async function getOptimizeSvg() {
     const svgOptimize = await select({
         message: "Do you want us to optimize your svg?",
         initialValue: true,

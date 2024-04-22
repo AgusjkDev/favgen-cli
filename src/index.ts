@@ -1,7 +1,7 @@
 import { intro, outro, spinner } from "@clack/prompts";
 
 import generate from "@/generate";
-import { getFavicons, getInputPath, getOutputPath, getPwaConfig, getSvgOptimize } from "@/prompts";
+import { getFavicons, getInputPath, getOptimizeSvg, getOutputPath, getPwaConfig } from "@/prompts";
 import { isSvg } from "@/utils";
 
 import PKG from "../package.json";
@@ -13,7 +13,7 @@ async function main() {
     const outputPath = await getOutputPath();
     const favicons = await getFavicons();
     const pwaConfig = await getPwaConfig();
-    const optimizeSvg = isSvg(inputPath) && (await getSvgOptimize());
+    const optimizeSvg = isSvg(inputPath) && (await getOptimizeSvg());
 
     const s = spinner();
     s.start("Generating");
