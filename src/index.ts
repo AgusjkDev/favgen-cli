@@ -1,13 +1,19 @@
-import { intro, outro, spinner } from "@clack/prompts";
-
 import generate from "@/generate";
-import { getFavicons, getInputPath, getOptimizeSvg, getOutputPath, getPwaConfig } from "@/prompts";
+import {
+    exit,
+    getFavicons,
+    getInputPath,
+    getOptimizeSvg,
+    getOutputPath,
+    getPwaConfig,
+    title,
+} from "@/prompts";
 import { isSvg } from "@/utils";
 
 import PKG from "../package.json";
 
 async function main() {
-    intro(` ${PKG.name} `);
+    title(PKG.name);
 
     const inputPath = await getInputPath();
     const outputPath = await getOutputPath();
@@ -15,14 +21,9 @@ async function main() {
     const pwaConfig = await getPwaConfig();
     const optimizeSvg = isSvg(inputPath) && (await getOptimizeSvg());
 
-    const s = spinner();
-    s.start("Generating");
-
     await generate({ inputPath, outputPath, favicons, pwaConfig, optimizeSvg });
 
-    s.stop("Successfully generated.");
-
-    outro(`Done! Thank you for using ${PKG.name} :)`);
+    exit(0, `Done! Thank you for using ${PKG.name} :)`);
 }
 
 main().catch(console.error);

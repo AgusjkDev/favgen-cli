@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { group, isCancel, multiselect, outro, select, text } from "@clack/prompts";
+import { group, intro, isCancel, multiselect, outro, select, text } from "@clack/prompts";
 
 import {
     PWA_DESCRIPTION_MAX_LENGTH,
@@ -11,6 +11,10 @@ import {
 import type { FaviconOption, FaviconOptionValue } from "@/generate";
 import { FAVICON_OPTIONS } from "@/generate/data";
 import { isHexColor, toAbsPath } from "@/utils";
+
+export function title(text: string) {
+    intro(` ${text} `);
+}
 
 export function exit(code: number = 0, message: string = "No problem! See you next time :)") {
     outro(message);
