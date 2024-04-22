@@ -120,7 +120,7 @@ export async function getFavicons() {
     return favicons;
 }
 
-export type PwaConfig = Exclude<Awaited<ReturnType<typeof getPwaConfig>>, null>;
+export type PwaConfig = NonNullable<Awaited<ReturnType<typeof getPwaConfig>>>;
 export async function getPwaConfig() {
     const configurePwa = await select({
         message: "Do you want to configure Progressive Web App?",
