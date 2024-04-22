@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { group, intro, isCancel, multiselect, outro, select, text } from "@clack/prompts";
+import colors from "picocolors";
 
 import {
     PWA_DESCRIPTION_MAX_LENGTH,
@@ -13,11 +14,13 @@ import { FAVICON_OPTIONS } from "@/generate/data";
 import { isHexColor, toAbsPath } from "@/utils";
 
 export function title(text: string) {
-    intro(` ${text} `);
+    intro(colors.inverse(colors.cyan(` ${text} `)));
 }
 
 export function exit(code: number = 0, message: string = "No problem! See you next time :)") {
-    outro(message);
+    const color = code === 0 ? colors.green : colors.red;
+
+    outro(color(message));
 
     return process.exit(code);
 }
