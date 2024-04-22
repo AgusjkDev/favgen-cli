@@ -31,7 +31,7 @@ export async function getInputPath() {
 
     const cancel = await text({
         message: "Where is the source image located at?",
-        placeholder: path.join(import.meta.dir, "/"),
+        placeholder: path.join(process.cwd(), "/"),
         validate: value => {
             inputPath = toAbsPath(value);
 
@@ -71,11 +71,13 @@ export async function getOutputPath() {
     let notEnoughPermissions = false;
     let failedDirCreation = false;
 
+    const cwd = process.cwd();
+
     const cancel = await text({
         message: "Where should we save the favicons package?",
-        placeholder: import.meta.dir,
-        initialValue: import.meta.dir,
-        defaultValue: import.meta.dir,
+        placeholder: cwd,
+        initialValue: cwd,
+        defaultValue: cwd,
         validate: value => {
             outputPath = toAbsPath(value);
 
