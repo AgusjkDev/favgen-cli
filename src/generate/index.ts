@@ -66,7 +66,7 @@ export default async function generate(
                     // Generate the configFile on the fly
                     if (configFile) configFile(archive);
 
-                    const mappedSizes = await Promise.all(
+                    return await Promise.all(
                         sizes.map(async size => {
                             const isArray = Array.isArray(size);
                             const width = isArray ? size[0] : size;
@@ -87,12 +87,11 @@ export default async function generate(
                             return { rel, size, proportions, src, buffer };
                         }),
                     );
-
-                    return mappedSizes;
                 },
             ),
         )
     ).flat(1);
+
     let toIcoBuffers: Buffer[] = [];
     for (const { size, src, buffer } of faviconsData) {
         if (DEFAULT_FAVICONS.sizes.includes(size)) toIcoBuffers.push(buffer);
@@ -125,9 +124,7 @@ export default async function generate(
             faviconsData: faviconsData.filter(data => data.rel != null),
             withSvgIcon: isSvg,
         }),
-        {
-            name: "index.html",
-        },
+        { name: "index.html" },
     );
 
     await archive.finalize();

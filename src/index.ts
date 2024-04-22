@@ -48,9 +48,7 @@ async function main() {
             }
         },
     });
-    if (isCancel(input)) {
-        return exit();
-    }
+    if (isCancel(input)) return exit();
 
     const inputPath = toAbsPath(input.toString());
     if (notEnoughPermissions) {
@@ -82,9 +80,7 @@ async function main() {
             }
         },
     });
-    if (isCancel(output)) {
-        return exit();
-    }
+    if (isCancel(output)) return exit();
 
     const outputPath = toAbsPath(output.toString());
     if (notEnoughPermissions) {
@@ -102,27 +98,17 @@ async function main() {
         required: false,
         options: FAVICON_OPTIONS,
     });
-    if (isCancel(faviconOptions) || faviconOptions instanceof Symbol) {
-        return exit();
-    }
+    if (isCancel(faviconOptions)) return exit();
 
     const isPwa = await select({
         message: "Do you want to configure Progressive Web App?",
         initialValue: false,
         options: [
-            {
-                label: "Yes",
-                value: true,
-            },
-            {
-                label: "No",
-                value: false,
-            },
+            { label: "Yes", value: true },
+            { label: "No", value: false },
         ],
     });
-    if (isCancel(isPwa)) {
-        return exit();
-    }
+    if (isCancel(isPwa)) return exit();
 
     const pwaConfig = !isPwa
         ? null
@@ -193,20 +179,12 @@ async function main() {
             message: "Do you want us to optimize your svg?",
             initialValue: true,
             options: [
-                {
-                    label: "Yes",
-                    value: true,
-                },
-                {
-                    label: "No",
-                    value: false,
-                },
+                { label: "Yes", value: true },
+                { label: "No", value: false },
             ],
         }));
 
-    if (isCancel(optimizeSvg)) {
-        return exit();
-    }
+    if (isCancel(optimizeSvg)) return exit();
 
     const s = spinner();
     s.start("Generating");
