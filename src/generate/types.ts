@@ -2,20 +2,27 @@ import type { Archiver } from "archiver";
 
 import type { PwaConfig } from "@/prompts";
 
-export type FaviconOptionValueSize = number | number[];
+export type FaviconRel = "apple-touch-icon" | "icon";
+
+type FaviconOptionValueSize = number | number[];
+
 export type FaviconOptionValue = {
-    rel: "apple-touch-icon" | "icon" | null;
+    rel: FaviconRel | null;
     sizes: FaviconOptionValueSize[];
     configFile?: (archive: Archiver) => void;
 };
+
 export type FaviconOption = {
     label: string;
     value: FaviconOptionValue;
 };
 
-export type GenerateOptions = {
-    optimizeSvg: boolean;
+export type GenerateParams = {
+    inputPath: string;
+    outputPath: string;
+    favicons: FaviconOptionValue[];
     pwaConfig: PwaConfig | null;
+    optimizeSvg: boolean;
 };
 
 export type FaviconData = {

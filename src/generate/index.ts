@@ -7,54 +7,21 @@ import svgo from "svgo";
 import toIco from "to-ico";
 
 import { PNG_COMPRESSION_LEVEL, ZIP_COMPRESSION_LEVEL, ZIP_PACKAGE_FILENAME } from "@/constants";
-import { getBrowserConfig, getExampleHtml, getWebManifest } from "@/utils";
+import { isSvg } from "@/utils";
 
-import type { FaviconOption, FaviconOptionValue, GenerateOptions } from "./types";
+import { getExampleHtml, getWebManifest } from "./config";
+import { DEFAULT_FAVICONS, PWA_FAVICONS } from "./data";
+import type { FaviconData, FaviconRel, GenerateParams } from "./types";
 
 export * from "./types";
 
-const DEFAULT_FAVICONS: FaviconOptionValue = { rel: "icon", sizes: [16, 32, 64] };
-const PWA_FAVICONS: FaviconOptionValue = { rel: null, sizes: [192, 512] };
-export const FAVICON_OPTIONS: FaviconOption[] = [
-    {
-        label: "Apple related",
-        value: {
-            rel: "apple-touch-icon",
-            sizes: [57, 60, 72, 76, 114, 120, 144, 152, 167, 180],
-        },
-    },
-    {
-        label: "Google & Chrome related",
-        value: {
-            rel: "icon",
-            sizes: [96, 128, 196, 256, 384],
-        },
-    },
-    {
-        label: "Internet Explorer",
-        value: {
-            rel: "icon",
-            sizes: [24],
-        },
-    },
-    {
-        label: "Windows 8.1",
-        value: {
-            rel: null,
-            sizes: [128, 270, 558, [558, 270]],
-            configFile: archive => {
-                archive.append(getBrowserConfig(), { name: "browserconfig.xml" });
-            },
-        },
-    },
-];
-
-export default async function generate(
-    inputPath: string,
-    outputPath: string,
-    favicons: FaviconOptionValue[],
-    { optimizeSvg, pwaConfig }: GenerateOptions,
-) {
+export default async function generate({
+    inputPath,
+    outputPath,
+    favicons,
+    pwaConfig,
+    optimizeSvg,
+}: GenerateParams) {
     const archive = archiver("zip", { zlib: { level: ZIP_COMPRESSION_LEVEL } });
     archive.pipe(createWriteStream(path.join(outputPath, ZIP_PACKAGE_FILENAME)));
 
@@ -101,8 +68,8 @@ export default async function generate(
 
     archive.append(await toIco(toIcoBuffers), { name: "favicon.ico" });
 
-    const isSvg = path.extname(inputPath) === ".svg";
-    if (isSvg) {
+    const withSvgIcon = isSvg(inputPath);
+    if (withSvgIcon) {
         const svgBuffer = await fs.readFile(inputPath);
 
         let svg: Buffer | string = svgBuffer;
@@ -113,7 +80,7 @@ export default async function generate(
     }
 
     if (pwaConfig) {
-        archive.append(getWebManifest({ pwaConfig, faviconsData, withSvgIcon: isSvg }), {
+        archive.append(getWebManifest({ pwaConfig, faviconsData, withSvgIcon }), {
             name: "manifest.json",
         });
     }
@@ -121,8 +88,10 @@ export default async function generate(
     archive.append(
         getExampleHtml({
             pwaConfig,
-            faviconsData: faviconsData.filter(data => data.rel != null),
-            withSvgIcon: isSvg,
+            faviconsData: faviconsData.filter(
+                (data): data is FaviconData & { rel: FaviconRel } => data.rel != null,
+            ),
+            withSvgIcon,
         }),
         { name: "index.html" },
     );

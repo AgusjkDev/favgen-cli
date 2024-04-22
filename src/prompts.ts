@@ -8,7 +8,8 @@ import {
     PWA_NAME_MAX_LENGTH,
     VALID_FILETYPES,
 } from "@/constants";
-import { FAVICON_OPTIONS, type FaviconOption, type FaviconOptionValue } from "@/generate";
+import type { FaviconOption, FaviconOptionValue } from "@/generate";
+import { FAVICON_OPTIONS } from "@/generate/data";
 import { isHexColor, toAbsPath } from "@/utils";
 
 export function exit(code: number = 0, message: string = "No problem! See you next time :)") {

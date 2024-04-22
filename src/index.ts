@@ -18,10 +18,7 @@ async function main() {
     const s = spinner();
     s.start("Generating");
 
-    await generate(inputPath, outputPath, favicons, {
-        optimizeSvg,
-        pwaConfig,
-    });
+    await generate({ inputPath, outputPath, favicons, pwaConfig, optimizeSvg });
 
     s.stop("Successfully generated.");
 
