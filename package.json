@@ -21,6 +21,8 @@
     "type": "module",
     "scripts": {
         "dev": "bun --watch src/index.ts",
+        "build": "bun build src/index.ts --minify --target=node --outfile=dist/index.js",
+        "start": "dist/index.js",
         "format": "prettier --write ."
     },
     "devDependencies": {
