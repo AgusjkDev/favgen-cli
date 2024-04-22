@@ -1,5 +1,7 @@
 import path from "node:path";
 
+import type { PwaConfig } from "@/prompts";
+
 import type { FaviconData } from "./generate";
 
 export function toAbsPath(input: string) {
@@ -29,12 +31,6 @@ export function getBrowserConfig() {
 </browserconfig>`.trim();
 }
 
-export type PwaConfig = {
-    name: string;
-    description: string;
-    display: string;
-    color: string;
-};
 export function getWebManifest({
     pwaConfig,
     faviconsData,

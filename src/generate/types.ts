@@ -1,6 +1,6 @@
 import type { Archiver } from "archiver";
 
-import type { PwaConfig } from "@/utils";
+import type { PwaConfig } from "@/prompts";
 
 export type FaviconOptionValueSize = number | number[];
 export type FaviconOptionValue = {
