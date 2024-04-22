@@ -10,6 +10,10 @@ export function isHexColor(input: string) {
     return input.match(/^#?([a-f0-9]{6}|[a-f0-9]{3})$/i);
 }
 
+export function isSvg(input: string) {
+    return path.extname(input) === ".svg";
+}
+
 export function getBrowserConfig() {
     return `
 <?xml version="1.0" encoding="utf-8"?>
