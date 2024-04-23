@@ -1,6 +1,6 @@
 {
     "name": "favgen-cli",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "description": "CLI for generating favicon images and configs.",
     "keywords": [
         "favicon",
