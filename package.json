@@ -17,7 +17,7 @@
         "url": "https://github.com/agusjkdev"
     },
     "repository": {
-        "url": "https://github.com/agusjkdev/favgen-cli"
+        "url": "git+https://github.com/agusjkdev/favgen-cli.git"
     },
     "type": "module",
     "bin": {
