@@ -1,5 +1,11 @@
 # favgen-cli
 
+## 1.0.2
+
+### Patch Changes
+
+- 24e3ca3: Remove unused dev dependency
+
 ## 1.0.1
 
 ### Patch Changes
