@@ -83,9 +83,9 @@ export function getExampleHtml({
             ? [
                   `<meta name="description" content="${pwaConfig.description}" />`,
                   `<meta name="theme-color" content="${pwaConfig.color}" />`,
+                  '<link rel="manifest" href="/manifest.json" />',
               ]
             : []),
-        '<link rel="manifest" href="/manifest.json" />',
         ...sortedFaviconsData.map(
             ({ rel, src, proportions }) =>
                 `<link rel="${rel}" href="/${src}" sizes="${proportions}" type="image/png" />`,
