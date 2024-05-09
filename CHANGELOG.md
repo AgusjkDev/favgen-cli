@@ -1,5 +1,11 @@
 # favgen-cli
 
+## 1.1.0
+
+### Minor Changes
+
+- 8dbb678: fixed configuration files
+
 ## 1.0.2
 
 ### Patch Changes
