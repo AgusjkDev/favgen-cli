@@ -7,10 +7,10 @@ export function getBrowserConfig() {
 <browserconfig>
     <msapplication>
         <tile>
-            <square128x128logo src="favicon-128x128.png" />
-            <square270x270logo src="favicon-270x270.png" />
-            <square558x558logo src="favicon-558x558.png" />
-            <wide558x270logo src="favicon-558x270.png" />
+            <square70x70logo src="favicon-128x128.png" />
+            <square150x150logo src="favicon-270x270.png" />
+            <wide310x150logo src="favicon-558x270.png" />
+            <square310x310logo src="favicon-558x558.png" />
         </tile>
     </msapplication>
 </browserconfig>`.trim();
