@@ -33,13 +33,13 @@ export function getWebManifest({
 
     const svgIcon = withSvgIcon && {
         src: "favicon.svg",
-        type: "image/svg+xml",
         sizes: "512x512",
+        type: "image/svg+xml",
     };
     const pngIcons = sortedFaviconsData.map(({ src, proportions }) => ({
         src,
-        type: "image/png",
         sizes: proportions,
+        type: "image/png",
     }));
 
     const { color, ...config } = pwaConfig;
